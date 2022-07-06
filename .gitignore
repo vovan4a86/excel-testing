@@ -1,0 +1,9 @@
+/vendor
+/node_modules
+.env
+.idea/
+/public/thumbs/
+/public/uploads/
+/composer.lock
+package-lock.json
+/public/mix-manifest.json

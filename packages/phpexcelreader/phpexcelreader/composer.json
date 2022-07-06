@@ -1,0 +1,17 @@
+{
+  "name": "phpexcelreader/phpexcelreader",
+  "description": "phpexcelreader",
+  "license": "MIT",
+
+  "authors": [
+    {
+      "name": "TVadim Tkachenko",
+      "email": "vt@apachephp.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "phpexcelreader\\phpexcelreader\\": "src/"
+    }
+  }
+}

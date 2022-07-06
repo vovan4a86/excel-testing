@@ -1,0 +1,38 @@
+#callback {
+    position: relative;
+}
+
+#popupWindow, #success_order {
+    max-width: 500px;
+    position: relative;
+    margin: auto;
+}
+
+#popupWindow .mfp-close, #success_order .mfp-close {
+    color: #fff;
+}
+
+
+table td {
+    border-bottom: 1px solid #161a1d;
+}
+.store table tr td {
+    border-right: 1px solid #45474a
+}
+.store table .total-row td {/* серая строка Итого */
+    background-color: grey;
+    border: none;
+}
+.store table tr td.total-name {
+    font-weight: bold; /* Итого - bold */
+}
+.store table .empty-row td {
+    border: none;
+}
+
+.links-screeds__link-none {
+    border-bottom: none;
+    color: #464646;
+}
+
+
