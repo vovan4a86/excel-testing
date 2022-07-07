@@ -38,26 +38,16 @@ class AdminStockController extends AdminController {
 		/** @var Stock $catalog */
 		$catalog = Stock::find($stockId);
 
+//		if ($priceFile) {
+//			Excel::import(new StockItemsImport($stockId), $priceFile);
+//		}
+
 		$filename = $catalog->generatePriceName();
-//		$priceFile->storeAs(public_path(Stock::UPLOAD_URL), $filename);
-//		$priceFile->move(public_path(Stock::UPLOAD_URL), $filename);
-//		$filepath = public_path(Stock::UPLOAD_URL . $filename);
+		$priceFile->move(public_path(Stock::UPLOAD_URL), $filename);
+		$filepath = public_path(Stock::UPLOAD_URL . $filename);
 
-		dd($priceFile);
-		if ($filename) {
-			Excel::import(new StockItemsImport($stockId), $priceFile);
-		}
-
-//		if(!$list = $this->parseNewXLS($filepath)) return null;
 		if($catalog->price) $catalog->removePrice();
 		$catalog->price = $filename;
-//		$this->data = $list;
-
-//		$this->price_head = array_get($list, '1.2');
-//		$catalog->price_head = 'Склад N3';
-//			$data['price_head'] = 'Склад N3';
-//		$catalog->save();
-
 
 		if (!$catalog) {
 			if (!$data['alias']) $data['alias'] = Text::translit($data['name']);
@@ -66,6 +56,8 @@ class AdminStockController extends AdminController {
 			$catalog = Stock::create($data);
 			$redirect = true;
 		} else {
+			StockItem::where('stock_id', '=', $stockId)->delete(); //удалим предыдущие записи
+			Excel::import(new StockItemsImport($stockId), $filepath);
 			$catalog->update($data);
 		}
 

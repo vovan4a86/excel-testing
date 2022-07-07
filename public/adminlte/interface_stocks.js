@@ -11,7 +11,6 @@ function stockPriceAttache(elem, e) {
 			});
 		}
 	});
-	$(elem).val('');
 }
 
 function stockSave(form, e) {

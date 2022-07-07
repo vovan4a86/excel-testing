@@ -5,7 +5,8 @@
 @stop
 
 {{--<form action="{{ route('admin.stock.catalogSave') }}" onsubmit="return stockSave(this, event)">--}}
-<form action="{{ route('qwe') }}" method="post" enctype="multipart/form-data">
+<form action="{{ route('qwe') }}" method="post"
+	  enctype="multipart/form-data" onsubmit="return stockSave(this, event)">
 	@csrf
 	<input type="hidden" name="id" value="{{ $catalog->id }}">
 
@@ -23,19 +24,20 @@
 				{!! Form::groupText('name', $catalog->name, 'Название') !!}
 				{!! Form::groupText('h1', $catalog->h1, 'H1') !!}
 				{!! Form::groupText('price_head', $catalog->price_head, 'Подзаголовок') !!}
-				<div class="form-group">
-					<label for="article-image">Загрузить XLS прайс-лист</label>
-{{--					<input id="article-image" type="file" name="price" value="" onchange="return stockPriceAttache(this, event)">--}}
-					<input type="file" name="fileXls" onchange="return stockPriceAttache(this, event)">
-					<div id="article-image-block">
-						@if ($catalog->price)
-							<a href="{{ $catalog->getPrice() }}" download="">
-								{{ $catalog->price }}
-							</a>
-						@else
-							<p class="text-yellow">Прайс не загружен.</p>
-						@endif
-					</div>
+
+				<label>Загрузить XLS прайс-лист</label><br>
+{{--			<input id="article-ima	ge" type="file" name="price" value="" onchange="return stockPriceAttache(this, event)">--}}
+				<input type="file" id="fileXls" name="fileXls" class="btn btn-default"  onchange="return stockPriceAttache(this, event)">
+
+
+				<div id="article-image-block">
+					@if ($catalog->price)
+						<a href="{{ $catalog->getPrice() }}" download="">
+							{{ $catalog->price }}
+						</a>
+					@else
+						<p class="text-yellow">Прайс не загружен.</p>
+					@endif
 				</div>
 
 				{!! Form::groupRichtext('text', $catalog->text, 'Текст') !!}
