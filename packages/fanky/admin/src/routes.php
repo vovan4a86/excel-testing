@@ -39,7 +39,10 @@ Route::group(['namespace' => 'Fanky\Admin\Controllers', 'prefix' => 'admin',
 		]);
 	});
 
-	Route::group(['as' => '.catalog', 'prefix' => 'catalog'], function () {
+    Route::get('/parser', 'AdminParserController@main');
+
+
+    Route::group(['as' => '.catalog', 'prefix' => 'catalog'], function () {
 		$controller  = 'AdminCatalogController@';
 		Route::get('/', $controller . 'getIndex');
 

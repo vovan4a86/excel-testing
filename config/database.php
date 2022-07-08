@@ -55,7 +55,7 @@ return [
 		'mysql' => [
 			'driver'    => 'mysql',
 			'host'      => env('DB_HOST', '127.0.0.1'),
-			'database'  => env('DB_DATABASE', 'regionmetprom-test'),
+			'database'  => env('DB_DATABASE', 'regionmetprom'),
 			'username'  => env('DB_USERNAME', 'root'),
 			'password'  => env('DB_PASSWORD', ''),
 			'charset'   => 'utf8',
@@ -66,7 +66,7 @@ return [
 		'old' => [
 			'driver'    => 'mysql',
 			'host'      => '127.0.0.1',
-			'database'  => 'regionmetprom-test',
+			'database'  => 'regionmetprom',
 			'username'  => 'root',
 			'password'  => '',
 			'charset'   => 'utf8',
