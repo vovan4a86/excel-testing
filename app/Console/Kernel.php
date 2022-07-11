@@ -1,5 +1,6 @@
 <?php namespace App\Console;
 
+use Fanky\Admin\Controllers\AdminParserController;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Fanky\Crm\Models\Task;
@@ -25,6 +26,11 @@ class Kernel extends ConsoleKernel {
      * @return void
      */
     protected function schedule(Schedule $schedule) {
+
+//			$schedule->call(function () {
+//				$controller = new AdminParserController();
+//				$controller->main();
+//			})->everyMinute();
 
 //		$schedule->command('queue:work --daemon')->everyMinute()->withoutOverlapping()
 //			->sendOutputTo(storage_path() . '/logs/queue-jobs.log');

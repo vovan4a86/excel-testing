@@ -11,11 +11,10 @@ class AdminParserController extends Controller {
     //https://medexe.ru/production/details/taps/price.html
     public function main() {
 
-        $str = 'Отвод 30-1-33,7х3,2 ст.12х18н10т геом. по ГОСТ 17375';
+        $str = 'Отвод 90-200 (219,1х3,0) AISI 304 ISO 3419 (M)';
         $res = $this->parseName($str);
         dump($str);
         dd($res);
-
 
         $parserMedexe = Parser::app('https://medexe.ru/')
             ->headers(1)
@@ -37,8 +36,17 @@ class AdminParserController extends Controller {
         echo "Дата: $date <br>";
         echo "<hr>";
 
-//        $pages = $totalNum / 20 + 1;
-        $pages = 3;
+        $pages = $totalNum / 20 + 1;
+//        $pages = 3;
+
+			file_put_contents($_SERVER['DOCUMENT_ROOT'] . self::PAGES_UPLOAD_URL . 1, $dom);
+			for ($i = 1; $i <= 2; $i++) {
+					$html = $parserMedexe->request('production/details/taps/price.html?curPos=' . $i * 20);
+					$dom = HtmlDomParser::str_get_html($html['html']);
+					file_put_contents($_SERVER['DOCUMENT_ROOT'] . self::PAGES_UPLOAD_URL . ($i+1), $dom);
+					sleep(mt_rand(0, 1));
+			}
+        dd('ok');
 
         ParseItem::truncate();
         for ($i = 1; $i <= $pages; $i++) {
@@ -66,6 +74,34 @@ class AdminParserController extends Controller {
         sleep(2);
     }
 
+    public function local() {
+    	$data = [];
+
+    	for ($i = 1; $i <=3; $i++) {
+    		$page = file_get_contents($_SERVER['DOCUMENT_ROOT'] . self::PAGES_UPLOAD_URL . $i);
+
+    		$dom =  HtmlDomParser::str_get_html($page);
+				$items = $dom->find('.price-table .item');
+
+				$count = 0;
+				foreach ($items as $item) {
+					$inStockValue = $item->find('.item-stock', 0)->find('span', 0)->text();
+					$inStock = strpos($inStockValue, 'наличии') ? 1 : 0;
+					if($inStock) {
+						$nameString = $item->find('.item-name', 0)->text();
+						$priceRaw = $item->find('.item-price', 0)->text();
+						$priceClean = preg_replace('/[^\d]+/', '', $priceRaw);
+
+						$parseString = $this->parseName($nameString);
+						$parseString['price'] = $priceClean;
+						$data[$i][$count + 1] = $parseString;
+						$count++;
+					}
+				}
+			}
+    	dd($data);
+		}
+
     public function parseName($string): array {
         $result = [];
         if(preg_match('/(DIN)/', $string)) {
@@ -74,24 +110,36 @@ class AdminParserController extends Controller {
             preg_match('/AISI\s\d+/', $string, $matches);
             $matches ? $result['steel'] = $matches[0] : $result['steel'] = '';
             $result['gost'] = 'DIN';
-        } else if(preg_match('/(ISO)/', $string)) {
-            preg_match('/90-\d{2,3}\s\S+/', $string, $matches);
-            $matches ? $result['name'] = $matches[0] : $result['name'] = '';
-            preg_match('/AISI\s\d+/', $string, $matches);
-            $matches ? $result['steel'] = $matches[0] : $result['steel'] = '';
-            $result['gost'] = 'ISO';
+        } else if(preg_match('/(ISO)/', $string, $matches)) {
+						//Отвод 90-200 (219,1х3,0) AISI 304 ISO 3419 (M)
+						preg_match('/90-\d{2,3}\s\S+/', $string, $matches);
+						if($matches) {
+							preg_match('/^../', $matches[0], $name_matches)
+								? $result['angle'] = $name_matches[0]
+								: $result['angle'] = '-';
+							preg_match('/\(\S+\х|x/', $matches[0], $name_matches)
+								? $result['diameter'] = substr($name_matches[0], 1, -2)
+								: $result['diameter'] = '-';
+							preg_match('/(х|x)\S+\)$/', $matches[0], $name_matches)
+								? $result['stenka'] = ltrim($name_matches[0], 'xх')
+								: $result['stenka'] = '-';
+						}
+
+						$matches ? $result['name'] = $matches[0] : $result['name'] = '';
+						preg_match('/AISI\s\d+/', $string, $matches);
+						$matches ? $result['steel'] = $matches[0] : $result['steel'] = '';
+						$result['gost'] = 'ISO';
         } else {
             preg_match('/(30|45|60|90)\S+/', $string, $matches);
             if($matches) {
-                //30-108х5
                 preg_match('/^../', $matches[0], $name_matches)
                     ? $result['angle'] = $name_matches[0]
                     : $result['angle'] = '-';
                 preg_match('/-\S+(х|x)/', $matches[0], $name_matches)
-                    ? $result['diameter'] = substr($name_matches[0], 1, strlen($name_matches[0]) - 2)
+                    ? $result['diameter'] = substr($name_matches[0], 1, -2)
                     : $result['diameter'] = '-';
                 preg_match('/(х|x)\S+$/', $matches[0], $name_matches)
-                    ? $result['stenka'] = substr($name_matches[0], 1, strlen($name_matches[0]) - 1)
+                    ? $result['stenka'] = ltrim($name_matches[0], 'xх')
                     : $result['stenka'] = '-';
             }
 
