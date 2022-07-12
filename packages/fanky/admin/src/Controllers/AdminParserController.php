@@ -11,10 +11,10 @@ class AdminParserController extends Controller {
     //https://medexe.ru/production/details/taps/price.html
     public function main() {
 
-        $str = 'Отвод 90-200 (219,1х3,0) AISI 304 ISO 3419 (M)';
-        $res = $this->parseName($str);
-        dump($str);
-        dd($res);
+//        $str = 'Отвод 90-100 (108,0х4,0) DIN 2605 AISI 304 DIN 11850 (М)';
+//        $res = $this->parseName($str);
+//        dump($str);
+//        dd($res);
 
         $parserMedexe = Parser::app('https://medexe.ru/')
             ->headers(1)
@@ -106,6 +106,18 @@ class AdminParserController extends Controller {
         $result = [];
         if(preg_match('/(DIN)/', $string)) {
             preg_match('/90-\d{2,3}\s\S+/', $string, $matches);
+            //Отвод 90-100 (108,0х4,0) DIN 2605 AISI 304 DIN 11850 (М)
+            if($matches) {
+                preg_match('/^../', $matches[0], $name_matches)
+                    ? $result['angle'] = $name_matches[0]
+                    : $result['angle'] = '-';
+                preg_match('/\(\S+\х|x/', $matches[0], $name_matches)
+                    ? $result['diameter'] = substr($name_matches[0], 1, -2)
+                    : $result['diameter'] = '-';
+                preg_match('/(х|x)\S+\)$/', $matches[0], $name_matches)
+                    ? $result['stenka'] = rtrim(ltrim($name_matches[0], 'xх'), ')')
+                    : $result['stenka'] = '-';
+            }
             $matches ? $result['name'] = $matches[0] : $result['name'] = '';
             preg_match('/AISI\s\d+/', $string, $matches);
             $matches ? $result['steel'] = $matches[0] : $result['steel'] = '';
@@ -121,10 +133,9 @@ class AdminParserController extends Controller {
 								? $result['diameter'] = substr($name_matches[0], 1, -2)
 								: $result['diameter'] = '-';
 							preg_match('/(х|x)\S+\)$/', $matches[0], $name_matches)
-								? $result['stenka'] = ltrim($name_matches[0], 'xх')
-								: $result['stenka'] = '-';
+								? $result['stenka'] = rtrim(ltrim($name_matches[0], 'xх'), ')')
+                                : $result['stenka'] = '-';
 						}
-
 						$matches ? $result['name'] = $matches[0] : $result['name'] = '';
 						preg_match('/AISI\s\d+/', $string, $matches);
 						$matches ? $result['steel'] = $matches[0] : $result['steel'] = '';
